@@ -1,20 +1,16 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 
-// Class representing a Student
-class Student {
+// Abstract class to define the blueprint of a Person
+abstract class Person {
     private int id;
     private String name;
-    private String department;
 
-    // Constructor
-    public Student(int id, String name, String department) {
+    public Person(int id, String name) {
         this.id = id;
         this.name = name;
-        this.department = department;
     }
 
-    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -23,12 +19,25 @@ class Student {
         return name;
     }
 
-    public String getDepartment() {
-        return department;
-    }
-
     public void setName(String name) {
         this.name = name;
+    }
+
+    // Abstract method for displaying details
+    public abstract String displayDetails();
+}
+
+// Student class inheriting from Person
+class Student extends Person {
+    private String department;
+
+    public Student(int id, String name, String department) {
+        super(id, name);
+        this.department = department;
+    }
+
+    public String getDepartment() {
+        return department;
     }
 
     public void setDepartment(String department) {
@@ -36,29 +45,62 @@ class Student {
     }
 
     @Override
-    public String toString() {
-        return "ID: " + id + ", Name: " + name + ", Department: " + department;
+    public String displayDetails() {
+        return "Student [ID: " + getId() + ", Name: " + getName() + ", Department: " + department + "]";
+    }
+}
+
+// GraduateStudent subclass inheriting from Student
+class GraduateStudent extends Student {
+    private String thesisTitle;
+
+    public GraduateStudent(int id, String name, String department, String thesisTitle) {
+        super(id, name, department);
+        this.thesisTitle = thesisTitle;
+    }
+
+    public String getThesisTitle() {
+        return thesisTitle;
+    }
+
+    public void setThesisTitle(String thesisTitle) {
+        this.thesisTitle = thesisTitle;
+    }
+
+    @Override
+    public String displayDetails() {
+        return "GraduateStudent [ID: " + getId() + ", Name: " + getName() + ", Department: " + getDepartment() +
+               ", Thesis Title: " + thesisTitle + "]";
     }
 }
 
 // Main class for managing students
 public class StudentManagementSystem {
-    private ArrayList<Student> students = new ArrayList<>();
+    private ArrayList<Person> students = new ArrayList<>();
     private Scanner scanner = new Scanner(System.in);
 
     // Method to add a student
     public void addStudent() {
-        System.out.print("Enter Student ID: ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        System.out.println("Add Student Type: 1. Regular Student 2. Graduate Student");
+        int choice = scanner.nextInt();
 
-        System.out.print("Enter Student Name: ");
+        System.out.print("Enter ID: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.print("Enter Name: ");
         String name = scanner.nextLine();
 
-        System.out.print("Enter Student Department: ");
+        System.out.print("Enter Department: ");
         String department = scanner.nextLine();
 
-        students.add(new Student(id, name, department));
+        if (choice == 1) {
+            students.add(new Student(id, name, department));
+        } else if (choice == 2) {
+            System.out.print("Enter Thesis Title: ");
+            String thesisTitle = scanner.nextLine();
+            students.add(new GraduateStudent(id, name, department, thesisTitle));
+        }
         System.out.println("Student added successfully!");
     }
 
@@ -68,46 +110,10 @@ public class StudentManagementSystem {
             System.out.println("No students to display.");
         } else {
             System.out.println("List of Students:");
-            for (Student student : students) {
-                System.out.println(student);
+            for (Person student : students) {
+                System.out.println(student.displayDetails());
             }
         }
-    }
-
-    // Method to update a student's information
-    public void updateStudent() {
-        System.out.print("Enter Student ID to update: ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
-
-        for (Student student : students) {
-            if (student.getId() == id) {
-                System.out.print("Enter new Name: ");
-                student.setName(scanner.nextLine());
-
-                System.out.print("Enter new Department: ");
-                student.setDepartment(scanner.nextLine());
-
-                System.out.println("Student updated successfully!");
-                return;
-            }
-        }
-        System.out.println("Student not found!");
-    }
-
-    // Method to delete a student
-    public void deleteStudent() {
-        System.out.print("Enter Student ID to delete: ");
-        int id = scanner.nextInt();
-
-        for (Student student : students) {
-            if (student.getId() == id) {
-                students.remove(student);
-                System.out.println("Student deleted successfully!");
-                return;
-            }
-        }
-        System.out.println("Student not found!");
     }
 
     // Main menu
@@ -116,9 +122,7 @@ public class StudentManagementSystem {
             System.out.println("\nStudent Management System");
             System.out.println("1. Add Student");
             System.out.println("2. View Students");
-            System.out.println("3. Update Student");
-            System.out.println("4. Delete Student");
-            System.out.println("5. Exit");
+            System.out.println("3. Exit");
             System.out.print("Choose an option: ");
 
             int choice = scanner.nextInt();
@@ -130,12 +134,6 @@ public class StudentManagementSystem {
                     viewStudents();
                     break;
                 case 3:
-                    updateStudent();
-                    break;
-                case 4:
-                    deleteStudent();
-                    break;
-                case 5:
                     System.out.println("Exiting... Goodbye!");
                     return;
                 default:
